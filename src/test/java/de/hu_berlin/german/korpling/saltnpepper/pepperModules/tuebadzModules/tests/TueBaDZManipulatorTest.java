@@ -71,7 +71,7 @@ public class TueBaDZManipulatorTest extends TestCase
 		
 		this.getFixture().start(sDoc.getSElementId());
 		
-		saltProject.saveSaltProject_DOT(URI.createFileURI("D:/Test/mytest2"));
+//		saltProject.saveSaltProject_DOT(URI.createFileURI("D:/Test/mytest2"));
 		System.out.println(sDocGraph.getSLayers());
 		
 //		{//tests
