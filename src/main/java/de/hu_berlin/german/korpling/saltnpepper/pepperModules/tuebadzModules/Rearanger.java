@@ -21,13 +21,15 @@ import java.util.HashSet;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.eclipse.emf.common.util.EList;
+
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Node;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser.GRAPH_TRAVERSE_MODE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverserObject;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.TraversalObject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser.GRAPH_TRAVERSE_MODE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
@@ -50,7 +52,7 @@ public class Rearanger implements TraversalObject
 	{
 		this.init();
 	}
-		
+	
 	/**
 	 * Contains all annotation values marking a a node being part of a topological annotation.
 	 */
@@ -70,6 +72,14 @@ public class Rearanger implements TraversalObject
 	public final String syntaxLayerName= "syntax";
 	
 	public final String syntaxAnnoName= "cat";
+
+	/**
+	 * Name of the hybrid layer.
+	 */
+	public final String hybridLayerName= "hybrid";
+	
+	public final String hybridAnnoName= "node";
+	
 	
 	/**
 	 * initializes this object.
@@ -91,16 +101,24 @@ public class Rearanger implements TraversalObject
 	 * {@link SLayer} object of syntactic layer
 	 */
 	protected SLayer syntaxLayer= null;
+	/**
+	 * {@link SLayer} object of hybrid layer
+	 */
+	protected SLayer hybridLayer= null;
 	
 	/**
 	 * A stack containing all {@link SStructure} nodes belonging to the topological layer between current node and the root.
 	 */
 	protected Stack<SStructure> topoPath= null;
-	
 	/**
 	 * A stack containing all {@link SStructure} nodes belonging to the syntactic layer between current node and the root.
 	 */
 	protected Stack<SStructure> syntaxPath= null;
+	/**
+	 * A stack containing all {@link SStructure} nodes belonging to the hybrid layer between current node and the root.
+	 */
+	protected Stack<SStructure> hybridPath= null;
+	
 	/**
 	 * Artificial root for all topological nodes.
 	 */
@@ -109,16 +127,60 @@ public class Rearanger implements TraversalObject
 	 * Artificial root for all syntactic nodes.
 	 */
 	protected SStructure syntaxRoot= null;
+	/**
+	 * Artificial root for all nodes.
+	 */
+	protected SStructure hybridRoot= null;
 	
+	/**
+	 * initialises the layers
+	 */
+	protected void initLayers(){
+		this.topoLayer= SaltFactory.eINSTANCE.createSLayer();
+		this.topoLayer.setSName(topoLayerName);
+		this.syntaxLayer= SaltFactory.eINSTANCE.createSLayer();
+		this.syntaxLayer.setSName(syntaxLayerName);
+		this.getsDocGraph().addSLayer(syntaxLayer);
+		this.getsDocGraph().addSLayer(topoLayer);		
+	}
 	
-	public void start()
+	/**
+	 * resets the global variables
+	 */
+	protected void newSentence() {
+		//creating topo Path
+		this.topoPath= new Stack<SStructure>();
+		//creating topo root
+		this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
+		this.topoLayer.getSNodes().add(topoRoot);
+		this.topoRoot.createSAnnotation(null, "cat", "TOP");
+		this.sDocGraph.addSNode(topoRoot);
+		//adding topoRoot to topoPath
+		this.topoPath.push(topoRoot);
+		
+		//creating syntax Path
+		this.syntaxPath= new Stack<SStructure>();
+		//creating syntax root
+		this.syntaxRoot= SaltFactory.eINSTANCE.createSStructure();
+		this.syntaxLayer.getSNodes().add(syntaxRoot);
+		this.syntaxRoot.createSAnnotation(null, "cat", "TOP");
+		this.sDocGraph.addSNode(syntaxRoot);
+		//adding syntaxRoot to syntaxPath
+		this.syntaxPath.push(syntaxRoot);
+	}
+	
+	public void start() 
 	{
 		GraphTraverser traverser= new GraphTraverser();
-		traverser.setGraph(sDocGraph);
-		GraphTraverserObject traverserObj= traverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-		traverserObj.start(traverser.getRoots());
-		//wait until traversion finished
-		traverserObj.waitUntilFinished();
+		traverser.setGraph(this.sDocGraph);
+		this.initLayers();
+		EList<Node> roots = traverser.getRoots();
+		for (int idx=0; idx<roots.size(); idx++) {
+			this.newSentence();
+			GraphTraverserObject traverserObj= traverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
+			traverserObj.start(roots.get(idx));
+			traverserObj.waitUntilFinished();			
+		}
 	}
 	
 	/**
@@ -128,16 +190,14 @@ public class Rearanger implements TraversalObject
 	 */
 	protected boolean isTopoNode(SStructure sStructure)
 	{
-		Boolean isTopoNode= false;
-		
 		for (SAnnotation sAnno: sStructure.getSAnnotations())
 		{//walk through all sAnnotations of node
 			if (this.topologicalAnnosHash.contains(sAnno.getSValue()))
 			{
-				isTopoNode= true;
+				return (true);
 			}
 		}//walk through all sAnnotations of node
-		return(isTopoNode);
+		return (false);
 	}
 	
 //	protected Boolean isLastNodeTopoNode= false;
@@ -162,6 +222,7 @@ public class Rearanger implements TraversalObject
 		{
 			SStructure sStructure= (SStructure) currNode;
 			SDocumentGraph sDocGraph= sStructure.getSDocumentGraph();
+
 			SDominanceRelation sDRel= null;
 			if (	(edge!= null)&&
 					(edge instanceof SDominanceRelation))
@@ -169,31 +230,7 @@ public class Rearanger implements TraversalObject
 			
 			if (isTopoNode(sStructure))
 			{//node is topo node
-				{//creating new topoLayer, topoPath, topoRoot if necessary
-					if (topoLayer== null)
-					{
-						topoLayer= SaltFactory.eINSTANCE.createSLayer();
-						topoLayer.setSName(topoLayerName);
-						sDocGraph.addSLayer(topoLayer);
-						
-						//creating topo Path
-						topoPath= new Stack<SStructure>();
-						
-						//creating topo root
-						this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
-						topoLayer.getSNodes().add(topoRoot);
-						topoRoot.createSAnnotation(null, "cat", "TOP");
-						sDocGraph.addSNode(topoRoot);
-						
-						//adding topoRoot to topoPath
-						topoPath.push(topoRoot);
-						System.out.println("added to topostack: "+ topoRoot);
-					}
-				}//creating new topoLayer, topoPath, topoRoot if necessary
-				
-				System.out.println("---------------->  topo node found:"+ sStructure);
 				{//creating new node
-//					SStructure topoNode= (SStructure) sStructure.clone();
 					SStructure topoNode= SaltFactory.eINSTANCE.createSStructure();
 					if (sStructure.getSAnnotations()!= null)
 					{
@@ -207,9 +244,7 @@ public class Rearanger implements TraversalObject
 					}
 					sDocGraph.addNode(topoNode);
 					topoLayer.getNodes().add(topoNode);
-					
 					SStructure father= topoPath.peek();
-					
 					if (father!= null)
 					{
 						{//creating relation to father topo node	
@@ -235,36 +270,14 @@ public class Rearanger implements TraversalObject
 					}//putting node to list of nodes without tokens and clean up the list
 					
 					topoPath.push(topoNode);
-					System.out.println("added to topostack: "+ sStructure);
+					//System.out.println("added to topostack: "+ sStructure);
 				}//creating new node
 			}//node is topo node
 			else
 			{//node is syntax node
-				{//creating new syntaxLayer, syntaxPath, syntaxRoot if necessary
-					if (syntaxLayer== null)
-					{
-						syntaxLayer= SaltFactory.eINSTANCE.createSLayer();
-						syntaxLayer.setSName(syntaxLayerName);
-						sDocGraph.addSLayer(syntaxLayer);
-						
-						//creating syntax Path
-						syntaxPath= new Stack<SStructure>();
-						
-						//creating syntax root
-						this.syntaxRoot= SaltFactory.eINSTANCE.createSStructure();
-						syntaxLayer.getSNodes().add(syntaxRoot);
-						syntaxRoot.createSAnnotation(null, "cat", "TOP");
-						sDocGraph.addSNode(syntaxRoot);
-						
-						//adding syntaxRoot to syntaxPath
-						syntaxPath.push(syntaxRoot);
-					}
-				}//creating new syntaxLayer, syntaxPath, syntaxRoot if necessary
-				
 				{//creating new node
 					SStructure syntaxNode= SaltFactory.eINSTANCE.createSStructure();
-					if (sStructure.getSAnnotations()!= null)
-					{
+					if (sStructure.getSAnnotations()!= null) {
 						for (SAnnotation sAnno: sStructure.getSAnnotations())
 						{
 							if (sAnno.getSName().equalsIgnoreCase("cat"))
@@ -282,9 +295,6 @@ public class Rearanger implements TraversalObject
 						if (father!= null)
 						{
 							SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-							System.out.println("graph of father: "+ father.getSDocumentGraph());
-							System.out.println("sDocGraph: "+ sDocGraph);
-							System.out.println("father: "+ father);
 							sDomRel.setSSource(father);
 							sDomRel.setSTarget(syntaxNode);
 							sDocGraph.addSRelation(sDomRel);
@@ -329,11 +339,15 @@ public class Rearanger implements TraversalObject
 			SStructure sStructure= (SStructure) currNode;
 			if (isTopoNode(sStructure))
 			{//node is topo node
-				this.topoPath.pop();
+				if (this.topoPath.size()>0) {
+					this.topoPath.pop();
+				}
 			}//node is topo node
 			else
 			{//node is syntax node
-//				this.syntaxPath.pop();
+				if (this.syntaxPath.size()>0) {
+					this.syntaxPath.pop();
+				}
 			}//node is syntax node
 		}//node is SStructure node
 	}
