@@ -18,9 +18,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.tests;
 
 import junit.framework.TestCase;
-
-import org.eclipse.emf.common.util.URI;
-
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.TueBaDZManipulator;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
@@ -34,7 +31,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 
 
 public class TueBaDZManipulatorTest extends TestCase
