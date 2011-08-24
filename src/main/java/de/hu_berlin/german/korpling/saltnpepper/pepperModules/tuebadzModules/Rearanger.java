@@ -56,7 +56,7 @@ public class Rearanger implements TraversalObject
 	/**
 	 * Contains all annotation values marking a a node being part of a topological annotation.
 	 */
-	protected String[] topologicalAnnotations= {"VF", "LK", "MF", "VC", "C", "NF"};
+	protected String[] topologicalAnnotations= {"VF", "LK", "MF", "VC", "C", "NF", "LV"};
 	protected HashSet<String> topologicalAnnosHash= null;
 	
 	/**
@@ -71,7 +71,7 @@ public class Rearanger implements TraversalObject
 	 */
 	public final String syntaxLayerName= "syntax";
 	
-	public final String syntaxAnnoName= "cat";
+	public final String syntaxAnnoName= "phrase";
 
 	/**
 	 * Name of the hybrid layer.
@@ -150,23 +150,11 @@ public class Rearanger implements TraversalObject
 	protected void newSentence() {
 		//creating topo Path
 		this.topoPath= new Stack<SStructure>();
-		//creating topo root
-		this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
-		this.topoLayer.getSNodes().add(topoRoot);
-		this.topoRoot.createSAnnotation(null, "cat", "TOP");
-		this.sDocGraph.addSNode(topoRoot);
-		//adding topoRoot to topoPath
-		this.topoPath.push(topoRoot);
+		this.topoRoot= null;
 		
 		//creating syntax Path
 		this.syntaxPath= new Stack<SStructure>();
-		//creating syntax root
-		this.syntaxRoot= SaltFactory.eINSTANCE.createSStructure();
-		this.syntaxLayer.getSNodes().add(syntaxRoot);
-		this.syntaxRoot.createSAnnotation(null, "cat", "TOP");
-		this.sDocGraph.addSNode(syntaxRoot);
-		//adding syntaxRoot to syntaxPath
-		this.syntaxPath.push(syntaxRoot);
+		this.syntaxRoot= null;
 	}
 	
 	public void start() 
@@ -181,12 +169,6 @@ public class Rearanger implements TraversalObject
 			traverserObj.start(roots.get(idx));
 			traverserObj.waitUntilFinished();			
 		}
-		
-//		SDocumentValidator sDocValidator= new SDocumentValidator();
-//		sDocValidator.setSDocument(this.sDocGraph.getSDocument());
-//		System.out.println("---------------------------------------");
-//		EList<Message> messages= sDocValidator.connectedToSTextualDS();
-//		System.out.println(messages);
 	}
 	
 	/**
@@ -224,110 +206,147 @@ public class Rearanger implements TraversalObject
 	{
 		if (currNode instanceof SStructure)
 		{
-			SStructure sStructure= (SStructure) currNode;
-			SDocumentGraph sDocGraph= sStructure.getSDocumentGraph();
-
-			SDominanceRelation sDRel= null;
-			if (	(edge!= null)&&
-					(edge instanceof SDominanceRelation))
-				sDRel= (SDominanceRelation) edge;
 			
-			if (isTopoNode(sStructure))
-			{//node is topo node
-				{//creating new node
-					SStructure topoNode= SaltFactory.eINSTANCE.createSStructure();
-					sDocGraph.addNode(topoNode);
-					topoLayer.getNodes().add(topoNode);
-//					System.out.println("topo: "+ sStructure.getSId()+" ---> "+topoNode.getSId());
-					
-					if (sStructure.getSAnnotations()!= null)
-					{
-						for (SAnnotation sAnno: sStructure.getSAnnotations())
-						{
-							if (sAnno.getSName().equalsIgnoreCase("cat"))
-								topoNode.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
-							else
-								topoNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
-						}
-					}
+			SStructure sStructure= (SStructure) currNode;
+			boolean belongsToToDuplicatingLayer= false;
+			for (SLayer sLayer: sStructure.getSLayers())
+			{
+				if ("tiger".equalsIgnoreCase(sLayer.getSName()))
+				{
+					belongsToToDuplicatingLayer= true;
+					break;
+				}
+			}
+			
+			if (belongsToToDuplicatingLayer)
+			{//only split (and duplicate) nodes if they belong to the interesting layer (tiger)
+				SDocumentGraph sDocGraph= sStructure.getSDocumentGraph();
+	
+				SDominanceRelation sDRel= null;
+				if (	(edge!= null)&&
+						(edge instanceof SDominanceRelation))
+					sDRel= (SDominanceRelation) edge;
 				
-					SStructure father= topoPath.peek();
-					if (father!= null)
+				{//put original node in hybrid layer
+					if (this.hybridLayer== null)
 					{
-						{//creating relation to father topo node	
-							SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-							sDomRel.setSSource(father);
-							sDomRel.setSTarget(topoNode);
-							sDocGraph.addSRelation(sDomRel);
-							topoLayer.getSRelations().add(sDomRel);
-							if (	(sDRel!= null) &&
-									(sDRel.getSAnnotations()!=null))
-							{
-								for (SAnnotation sAnno:sDRel.getSAnnotations())
-								{
-									sDomRel.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
-								}
-							}
-						}//creating relation to father topo node
+						this.hybridLayer= SaltFactory.eINSTANCE.createSLayer();
+						this.hybridLayer.setSName(hybridLayerName);
+						this.sDocGraph.getSLayers().add(this.hybridLayer);
+						this.hybridLayer.getSNodes().add(sStructure);
+						if (sDRel!= null)
+							this.hybridLayer.getSRelations().add(sDRel);
 					}
-					{//putting node to list of nodes without tokens and clean up the list
-						if (this.topoStructsWithoutSToken.contains(father))
-							this.topoStructsWithoutSToken.remove(father);
-						this.topoStructsWithoutSToken.add(topoNode);
-					}//putting node to list of nodes without tokens and clean up the list
+				}//put original node in hybrid layer
+				
+				if (isTopoNode(sStructure))
+				{//node is topo node
+					if (this.topoRoot== null)
+					{//creating topo root and adding to graph etc.
+						//creating topo root
+						this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
+						this.topoLayer.getSNodes().add(topoRoot);
+						this.topoRoot.createSAnnotation(null, topoAnnoName, "TOP");
+						this.sDocGraph.addSNode(topoRoot);
+						//adding topoRoot to topoPath
+						this.topoPath.push(topoRoot);
+					}//creating topo root and adding to graph etc.
 					
-					topoPath.push(topoNode);
-					//System.out.println("added to topostack: "+ sStructure);
-				}//creating new node
-			}//node is topo node
-			else
-			{//node is syntax node
-				{//creating new node
-					SStructure syntaxNode= SaltFactory.eINSTANCE.createSStructure();
-					sDocGraph.addNode(syntaxNode);
-					syntaxLayer.getNodes().add(syntaxNode);
-					
-//					System.out.println("syntax: "+ sStructure.getSId()+" ---> "+syntaxNode.getSId());
-					
-					if (sStructure.getSAnnotations()!= null) {
-						for (SAnnotation sAnno: sStructure.getSAnnotations())
+					{//creating new node
+						SStructure topoNode= SaltFactory.eINSTANCE.createSStructure();
+						sDocGraph.addNode(topoNode);
+						topoLayer.getNodes().add(topoNode);
+						
+						if (sStructure.getSAnnotations()!= null)
 						{
-							if (sAnno.getSName().equalsIgnoreCase("cat"))
-								syntaxNode.createSAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getSValueSTEXT());
-							else
-								syntaxNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
+							for (SAnnotation sAnno: sStructure.getSAnnotations())
+							{
+								if (sAnno.getSName().equalsIgnoreCase("cat"))
+									topoNode.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
+								else
+									topoNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
+							}
 						}
-					}
 					
-					SStructure father= syntaxPath.peek();
-					
-					{//creating relation to father syntax node	
+						SStructure father= topoPath.peek();
 						if (father!= null)
 						{
-							SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-							sDomRel.setSSource(father);
-							sDomRel.setSTarget(syntaxNode);
-							sDocGraph.addSRelation(sDomRel);
-							if (	(sDRel!= null) &&
-									(sDRel.getSAnnotations()!=null))
-							{
-								for (SAnnotation sAnno:sDRel.getSAnnotations())
+							{//creating relation to father topo node	
+								SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
+								sDomRel.setSSource(father);
+								sDomRel.setSTarget(topoNode);
+								sDocGraph.addSRelation(sDomRel);
+								topoLayer.getSRelations().add(sDomRel);
+								if (	(sDRel!= null) &&
+										(sDRel.getSAnnotations()!=null))
 								{
-									sDomRel.createSAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getSValueSTEXT());
+									for (SAnnotation sAnno:sDRel.getSAnnotations())
+									{
+										sDomRel.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
+									}
 								}
-							}
-							syntaxLayer.getSRelations().add(sDomRel);
+							}//creating relation to father topo node
 						}
-					}//creating relation to father syntax node
-					{//putting node to list of nodes without tokens and clean up the list
-						if (this.syntaxStructsWithoutSToken.contains(father))
-							this.syntaxStructsWithoutSToken.remove(father);
-						this.syntaxStructsWithoutSToken.add(syntaxNode);
-					}//putting node to list of nodes without tokens and clean up the list
-					
-					syntaxPath.push(syntaxNode);
-				}//creating new node
-			}//node is syntax node
+						{//putting node to list of nodes without tokens and clean up the list
+							if (this.topoStructsWithoutSToken.contains(father))
+								this.topoStructsWithoutSToken.remove(father);
+							this.topoStructsWithoutSToken.add(topoNode);
+						}//putting node to list of nodes without tokens and clean up the list
+						
+						topoPath.push(topoNode);
+					}//creating new node
+				}//node is topo node
+				else
+				{//node is syntax node
+					{//creating new node
+						SStructure syntaxNode= SaltFactory.eINSTANCE.createSStructure();
+						sDocGraph.addNode(syntaxNode);
+						syntaxLayer.getNodes().add(syntaxNode);
+						if (syntaxRoot== null)
+							this.syntaxRoot= syntaxNode;
+						
+						if (sStructure.getSAnnotations()!= null) {
+							for (SAnnotation sAnno: sStructure.getSAnnotations())
+							{
+								if (sAnno.getSName().equalsIgnoreCase("cat"))
+									syntaxNode.createSAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getSValueSTEXT());
+								else
+									syntaxNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
+							}
+						}
+						
+						SStructure father= null;
+						if (!syntaxPath.isEmpty())
+							 father= syntaxPath.peek();
+						
+						{//creating relation to father syntax node	
+							if (father!= null)
+							{
+								SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
+								sDomRel.setSSource(father);
+								sDomRel.setSTarget(syntaxNode);
+								sDocGraph.addSRelation(sDomRel);
+								if (	(sDRel!= null) &&
+										(sDRel.getSAnnotations()!=null))
+								{
+									for (SAnnotation sAnno:sDRel.getSAnnotations())
+									{
+										sDomRel.createSAnnotation(syntaxLayerName, sAnno.getSName(), sAnno.getSValueSTEXT());
+									}
+								}
+								syntaxLayer.getSRelations().add(sDomRel);
+							}
+						}//creating relation to father syntax node
+						{//putting node to list of nodes without tokens and clean up the list
+							if (this.syntaxStructsWithoutSToken.contains(father))
+								this.syntaxStructsWithoutSToken.remove(father);
+							this.syntaxStructsWithoutSToken.add(syntaxNode);
+						}//putting node to list of nodes without tokens and clean up the list
+						
+						syntaxPath.push(syntaxNode);
+					}//creating new node
+				}//node is syntax node
+			}
 		}
 	}
 
