@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.hu_berlin.german.korpling.saltnpepper.pepperModules</groupId>
   <artifactId>TueBaDZModules</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <parent>
   	<groupId>de.hu_berlin.german.korpling.saltnpepper.pepperModules</groupId>
@@ -10,7 +10,7 @@
   	<version>0.0.1</version>
   </parent>
    <scm>
-        <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/tags/TueBaDZModules-0.0.1</developerConnection>
+        <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/trunk</developerConnection>
     </scm>
   	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
