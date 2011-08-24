@@ -30,16 +30,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverse
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser.GRAPH_TRAVERSE_MODE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverserObject;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.TraversalObject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.modules.SDocumentStructureAccessor;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.modules.SDocumentValidator;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.modules.SDocumentValidator.Message;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 public class Rearanger implements TraversalObject
 {
@@ -186,20 +182,11 @@ public class Rearanger implements TraversalObject
 			traverserObj.waitUntilFinished();			
 		}
 		
-		SDocumentValidator sDocValidator= new SDocumentValidator();
-		sDocValidator.setSDocument(this.sDocGraph.getSDocument());
-		System.out.println("---------------------------------------");
-		EList<Message> messages= sDocValidator.connectedToSTextualDS();
-		System.out.println(messages);
-		for (Message message: messages)
-		{
-			if (this.sDocGraph.getOutEdges(message.getsElementId().getSId())== null)
-				System.out.println("--> no outedges for "+ message.getsElementId());
-			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-			acc.setSDocumentGraph(sDocGraph);
-			System.out.println("overlapped text by '"+message.getsElementId().getSId()+"'"+ acc.getSOverlappedText((SNode) message.getsElementId().getIdentifiableElement()));
-		}
-		
+//		SDocumentValidator sDocValidator= new SDocumentValidator();
+//		sDocValidator.setSDocument(this.sDocGraph.getSDocument());
+//		System.out.println("---------------------------------------");
+//		EList<Message> messages= sDocValidator.connectedToSTextualDS();
+//		System.out.println(messages);
 	}
 	
 	/**
@@ -218,8 +205,6 @@ public class Rearanger implements TraversalObject
 		}//walk through all sAnnotations of node
 		return (false);
 	}
-	
-//	protected Boolean isLastNodeTopoNode= false;
 	
 	/**
 	 * Stores all during traversion nodes which do not have some tokens
@@ -251,6 +236,10 @@ public class Rearanger implements TraversalObject
 			{//node is topo node
 				{//creating new node
 					SStructure topoNode= SaltFactory.eINSTANCE.createSStructure();
+					sDocGraph.addNode(topoNode);
+					topoLayer.getNodes().add(topoNode);
+//					System.out.println("topo: "+ sStructure.getSId()+" ---> "+topoNode.getSId());
+					
 					if (sStructure.getSAnnotations()!= null)
 					{
 						for (SAnnotation sAnno: sStructure.getSAnnotations())
@@ -261,8 +250,7 @@ public class Rearanger implements TraversalObject
 								topoNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
 						}
 					}
-					sDocGraph.addNode(topoNode);
-					topoLayer.getNodes().add(topoNode);
+				
 					SStructure father= topoPath.peek();
 					if (father!= null)
 					{
@@ -296,6 +284,11 @@ public class Rearanger implements TraversalObject
 			{//node is syntax node
 				{//creating new node
 					SStructure syntaxNode= SaltFactory.eINSTANCE.createSStructure();
+					sDocGraph.addNode(syntaxNode);
+					syntaxLayer.getNodes().add(syntaxNode);
+					
+//					System.out.println("syntax: "+ sStructure.getSId()+" ---> "+syntaxNode.getSId());
+					
 					if (sStructure.getSAnnotations()!= null) {
 						for (SAnnotation sAnno: sStructure.getSAnnotations())
 						{
@@ -305,8 +298,6 @@ public class Rearanger implements TraversalObject
 								syntaxNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
 						}
 					}
-					sDocGraph.addNode(syntaxNode);
-					syntaxLayer.getNodes().add(syntaxNode);
 					
 					SStructure father= syntaxPath.peek();
 					
@@ -384,7 +375,12 @@ public class Rearanger implements TraversalObject
 						long order)
 	{
 		if (currNode instanceof SStructure)
+		{
+			if (	(edge == null)||
+					(edge instanceof SDominanceRelation))
 				return(true);
+			else return(false);
+		}
 		else if (currNode instanceof SToken)
 		{
 			if (edge instanceof SDominanceRelation)
