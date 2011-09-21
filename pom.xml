@@ -17,7 +17,7 @@
     <version>1.1.2</version>
   </parent>
   <scm>
-    <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/pepperModules-TueBaDZModules/trunk</developerConnection>
+    <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/trunk</developerConnection>
   </scm>
   <properties>
   	<component.descriptor.name>serviceComponents.xml</component.descriptor.name>
@@ -30,7 +30,7 @@
         <version>2.1</version>
         <configuration>
           <tagBase>
-           https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/pepperModules-TueBaDZModules/tags/
+           https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/tags/
           </tagBase>
           <releaseProfiles>release</releaseProfiles>
           <goals>assembly:single deploy</goals>
