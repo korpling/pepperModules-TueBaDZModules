@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
   <artifactId>pepperModules-TueBaDZModules</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <repositories>
     <repository>
@@ -19,9 +19,6 @@
   <scm>
     <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/trunk</developerConnection>
   </scm>
-  <properties>
-  	<component.descriptor.name>serviceComponents.xml</component.descriptor.name>
-  </properties>
   <build>
     <plugins>
       <!-- start: Plugin for automatic releasing -->
