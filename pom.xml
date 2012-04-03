@@ -19,9 +19,6 @@
   <scm>
     <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/tags/pepperModules-TueBaDZModules-0.0.2</developerConnection>
   </scm>
-  <properties>
-  	<component.descriptor.name>serviceComponents.xml</component.descriptor.name>
-  </properties>
   <build>
     <plugins>
       <!-- start: Plugin for automatic releasing -->
