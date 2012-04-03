@@ -19,9 +19,6 @@
   <scm>
     <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/tags/pepperModules-TueBaDZModules-0.0.4</developerConnection>
   </scm>
-  <properties>
-  	<component.descriptor.name>serviceComponents.xml</component.descriptor.name>
-  </properties>
   <build>
     <plugins>
       <!-- start: Plugin for automatic releasing -->
@@ -33,7 +30,7 @@
            https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TueBaDZModules/tags/
           </tagBase>
           <releaseProfiles>release</releaseProfiles>
-          <goals>deploy assembly:single</goals>
+          <goals>package assembly:single deploy</goals>
         </configuration>
       </plugin>
       <!-- start: creation of bundle jar -->
