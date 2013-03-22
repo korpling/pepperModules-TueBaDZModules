@@ -17,8 +17,7 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperManipulator;
@@ -38,7 +37,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
  *
  */
 @Component(name="TueBaDZManipulatorComponent", factory="PepperManipulatorComponentFactory")
-@Service(value=PepperManipulator.class)
 public class TueBaDZManipulator extends PepperManipulatorImpl 
 {
 	public TueBaDZManipulator()
