@@ -23,6 +23,8 @@ import java.util.Vector;
 
 import org.eclipse.emf.common.util.EList;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Node;
@@ -37,16 +39,16 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 
-public class Rearanger implements TraversalObject
+public class Rearanger extends PepperMapperImpl implements TraversalObject
 {
-	private SDocumentGraph sDocGraph= null;
-	public void setsDocGraph(SDocumentGraph sDocGraph) {
-		this.sDocGraph = sDocGraph;
-	}
-
-	public SDocumentGraph getsDocGraph() {
-		return sDocGraph;
-	}
+//	private SDocumentGraph sDocGraph= null;
+//	public void setsDocGraph(SDocumentGraph sDocGraph) {
+//		this.sDocGraph = sDocGraph;
+//	}
+//
+//	public SDocumentGraph getsDocGraph() {
+//		return sDocGraph;
+//	}
 	
 	public Rearanger()
 	{
@@ -62,23 +64,23 @@ public class Rearanger implements TraversalObject
 	/**
 	 * Name of the topological layer.
 	 */
-	public final String topoLayerName= "topo";
+	public static final String topoLayerName= "topo";
 	
-	public final String topoAnnoName= "field";
+	public static final String topoAnnoName= "field";
 	
 	/**
 	 * Name of the syntactical layer.
 	 */
-	public final String syntaxLayerName= "syntax";
+	public static final String syntaxLayerName= "syntax";
 	
-	public final String syntaxAnnoName= "phrase";
+	public static final String syntaxAnnoName= "phrase";
 
 	/**
 	 * Name of the hybrid layer.
 	 */
-	public final String hybridLayerName= "hybrid";
+	public static final String hybridLayerName= "hybrid";
 	
-	public final String hybridAnnoName= "node";
+	public static final String hybridAnnoName= "node";
 	
 	
 	/**
@@ -140,8 +142,8 @@ public class Rearanger implements TraversalObject
 		this.topoLayer.setSName(topoLayerName);
 		this.syntaxLayer= SaltFactory.eINSTANCE.createSLayer();
 		this.syntaxLayer.setSName(syntaxLayerName);
-		this.getsDocGraph().addSLayer(syntaxLayer);
-		this.getsDocGraph().addSLayer(topoLayer);		
+		getSDocument().getSDocumentGraph().addSLayer(syntaxLayer);
+		getSDocument().getSDocumentGraph().addSLayer(topoLayer);		
 	}
 	
 	/**
@@ -157,10 +159,15 @@ public class Rearanger implements TraversalObject
 		this.syntaxRoot= null;
 	}
 	
-	public void start() 
-	{
+	/**
+	 * This method maps a Salt document to a Treetagger document  
+	 */
+	@Override
+	public MAPPING_RESULT mapSDocument() {
+		if (getSDocument().getSDocumentGraph()== null)
+			getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 		GraphTraverser traverser= new GraphTraverser();
-		traverser.setGraph(this.sDocGraph);
+		traverser.setGraph(getSDocument().getSDocumentGraph());
 		this.initLayers();
 		EList<Node> roots = traverser.getRoots();
 		for (int idx=0; idx<roots.size(); idx++) {
@@ -169,6 +176,7 @@ public class Rearanger implements TraversalObject
 			traverserObj.start(roots.get(idx));
 			traverserObj.waitUntilFinished();			
 		}
+		return(MAPPING_RESULT.FINISHED);
 	}
 	
 	/**
@@ -232,7 +240,7 @@ public class Rearanger implements TraversalObject
 					{
 						this.hybridLayer= SaltFactory.eINSTANCE.createSLayer();
 						this.hybridLayer.setSName(hybridLayerName);
-						this.sDocGraph.getSLayers().add(this.hybridLayer);
+						getSDocument().getSDocumentGraph().getSLayers().add(this.hybridLayer);
 						this.hybridLayer.getSNodes().add(sStructure);
 						if (sDRel!= null)
 							this.hybridLayer.getSRelations().add(sDRel);
@@ -247,7 +255,7 @@ public class Rearanger implements TraversalObject
 						this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
 						this.topoLayer.getSNodes().add(topoRoot);
 						this.topoRoot.createSAnnotation(null, topoAnnoName, "TOP");
-						this.sDocGraph.addSNode(topoRoot);
+						getSDocument().getSDocumentGraph().addSNode(topoRoot);
 						//adding topoRoot to topoPath
 						this.topoPath.push(topoRoot);
 					}//creating topo root and adding to graph etc.
