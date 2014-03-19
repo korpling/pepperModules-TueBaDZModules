@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.TueBaDZManipulator;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -51,45 +50,43 @@ public class TueBaDZManipulatorTest
 	public void setUp()
 	{
 		this.setFixture(new TueBaDZManipulator());
+		getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
 	}
 	@Test
 	public void testStartManipulator()
 	{
-//		SDocumentGraph sDocGraph= this.createSDocGraph();
-//		SaltProject saltProject= SaltFactory.eINSTANCE.createSaltProject();
-//		SCorpusGraph sCorpGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
-//		saltProject.getSCorpusGraphs().add(sCorpGraph);
-//		SCorpus sCorpus= SaltFactory.eINSTANCE.createSCorpus();
-//		sCorpGraph.addSNode(sCorpus);
-//		SDocument sDoc= SaltFactory.eINSTANCE.createSDocument();
-//		sDoc.setSName("sample1");
-//		sDoc.setSDocumentGraph(sDocGraph);
-//		sCorpGraph.addSDocument(sCorpus, sDoc);
-////		saltProject.saveSaltProject_DOT(URI.createFileURI("D:/Test/mytest"));
-//		
-//		this.getFixture().start(sDoc.getSElementId());
-//		
-////		saltProject.saveSaltProject_DOT(URI.createFileURI("D:/Test/mytest2"));
-//		System.out.println(sDocGraph.getSLayers());
-//		
-////		{//tests
-////			SLayer topoLayer= null;
-////			SLayer syntaxLayer= null;
-////			for (SLayer sLayer: sDoc.getSLayers())
-////			{
-////				if (sLayer.getSName().equals(this.getFixture().topoLayerName))
-////					topoLayer= sLayer;
-////				else if (sLayer.getSName().equals(this.getFixture().syntaxLayerName))
-////					syntaxLayer= sLayer;	
-////			}
-////			assertNotNull(topoLayer);
-////			assertNotNull(syntaxLayer);
-////			assertEquals(10, syntaxLayer.getSNodes().size());
-////			assertEquals(9, syntaxLayer.getSRelations().size());
-////			
-////			assertEquals(9, topoLayer.getSNodes().size());
-////			assertEquals(8, topoLayer.getSRelations().size());
-////		}//tests
+		SDocumentGraph sDocGraph= this.createSDocGraph();
+		SCorpusGraph sCorpGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
+		getFixture().getSaltProject().getSCorpusGraphs().add(sCorpGraph);
+		SCorpus sCorpus= SaltFactory.eINSTANCE.createSCorpus();
+		sCorpGraph.addSNode(sCorpus);
+		SDocument sDoc= SaltFactory.eINSTANCE.createSDocument();
+		sDoc.setSName("sample1");
+		sDoc.setSDocumentGraph(sDocGraph);
+		sCorpGraph.addSDocument(sCorpus, sDoc);
+		
+		this.getFixture().start(sDoc.getSElementId());
+		
+		System.out.println(sDocGraph.getSLayers());
+		
+//		{//tests
+//			SLayer topoLayer= null;
+//			SLayer syntaxLayer= null;
+//			for (SLayer sLayer: sDoc.getSLayers())
+//			{
+//				if (sLayer.getSName().equals(this.getFixture().topoLayerName))
+//					topoLayer= sLayer;
+//				else if (sLayer.getSName().equals(this.getFixture().syntaxLayerName))
+//					syntaxLayer= sLayer;	
+//			}
+//			assertNotNull(topoLayer);
+//			assertNotNull(syntaxLayer);
+//			assertEquals(10, syntaxLayer.getSNodes().size());
+//			assertEquals(9, syntaxLayer.getSRelations().size());
+//			
+//			assertEquals(9, topoLayer.getSNodes().size());
+//			assertEquals(8, topoLayer.getSRelations().size());
+//		}//tests
 	}
 	
 	public SDocumentGraph createSDocGraph()
