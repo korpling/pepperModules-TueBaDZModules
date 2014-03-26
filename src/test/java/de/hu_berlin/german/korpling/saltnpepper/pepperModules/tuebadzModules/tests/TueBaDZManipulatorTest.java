@@ -17,10 +17,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.tests;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.TueBaDZManipulator;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -33,7 +34,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 
 
-public class TueBaDZManipulatorTest extends TestCase
+public class TueBaDZManipulatorTest
 {
 	private TueBaDZManipulator fixture= null;
 	
@@ -45,29 +46,27 @@ public class TueBaDZManipulatorTest extends TestCase
 		this.fixture = fixture;
 	}
 
-	@Override
+	@Before
 	public void setUp()
 	{
 		this.setFixture(new TueBaDZManipulator());
+		getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
 	}
-	
+	@Test
 	public void testStartManipulator()
 	{
 		SDocumentGraph sDocGraph= this.createSDocGraph();
-		SaltProject saltProject= SaltFactory.eINSTANCE.createSaltProject();
 		SCorpusGraph sCorpGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
-		saltProject.getSCorpusGraphs().add(sCorpGraph);
+		getFixture().getSaltProject().getSCorpusGraphs().add(sCorpGraph);
 		SCorpus sCorpus= SaltFactory.eINSTANCE.createSCorpus();
 		sCorpGraph.addSNode(sCorpus);
 		SDocument sDoc= SaltFactory.eINSTANCE.createSDocument();
 		sDoc.setSName("sample1");
 		sDoc.setSDocumentGraph(sDocGraph);
 		sCorpGraph.addSDocument(sCorpus, sDoc);
-//		saltProject.saveSaltProject_DOT(URI.createFileURI("D:/Test/mytest"));
 		
 		this.getFixture().start(sDoc.getSElementId());
 		
-//		saltProject.saveSaltProject_DOT(URI.createFileURI("D:/Test/mytest2"));
 		System.out.println(sDocGraph.getSLayers());
 		
 //		{//tests

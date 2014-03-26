@@ -19,8 +19,8 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules;
 
 import org.osgi.service.component.annotations.Component;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperManipulatorImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperManipulatorImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
@@ -40,7 +40,7 @@ public class TueBaDZManipulator extends PepperManipulatorImpl
 	{
 		super();
 		//setting name of module
-		this.name= "TueBaDZManipulator";
+		this.setName("TueBaDZManipulator");
 	}
 	
 	/**

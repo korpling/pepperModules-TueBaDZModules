@@ -23,8 +23,8 @@ import java.util.Vector;
 
 import org.eclipse.emf.common.util.EList;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Node;
@@ -40,16 +40,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 
 public class Rearanger extends PepperMapperImpl implements TraversalObject
-{
-//	private SDocumentGraph sDocGraph= null;
-//	public void setsDocGraph(SDocumentGraph sDocGraph) {
-//		this.sDocGraph = sDocGraph;
-//	}
-//
-//	public SDocumentGraph getsDocGraph() {
-//		return sDocGraph;
-//	}
-	
+{	
 	public Rearanger()
 	{
 		this.init();
@@ -163,7 +154,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 	 * This method maps a Salt document to a Treetagger document  
 	 */
 	@Override
-	public MAPPING_RESULT mapSDocument() {
+	public DOCUMENT_STATUS mapSDocument() {
 		if (getSDocument().getSDocumentGraph()== null)
 			getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 		GraphTraverser traverser= new GraphTraverser();
@@ -176,7 +167,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 			traverserObj.start(roots.get(idx));
 			traverserObj.waitUntilFinished();			
 		}
-		return(MAPPING_RESULT.FINISHED);
+		return(DOCUMENT_STATUS.COMPLETED);
 	}
 	
 	/**
