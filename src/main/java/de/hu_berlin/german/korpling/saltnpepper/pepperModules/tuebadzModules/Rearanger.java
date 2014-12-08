@@ -232,9 +232,10 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 						this.hybridLayer= SaltFactory.eINSTANCE.createSLayer();
 						this.hybridLayer.setSName(hybridLayerName);
 						getSDocument().getSDocumentGraph().getSLayers().add(this.hybridLayer);
-						this.hybridLayer.getSNodes().add(sStructure);
-						if (sDRel!= null)
-							this.hybridLayer.getSRelations().add(sDRel);
+						sStructure.getSLayers().add(hybridLayer);
+						if (sDRel!= null){
+							sDRel.getSLayers().add(hybridLayer);
+						}
 					}
 				}//put original node in hybrid layer
 				
@@ -244,7 +245,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 					{//creating topo root and adding to graph etc.
 						//creating topo root
 						this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
-						this.topoLayer.getSNodes().add(topoRoot);
+						topoRoot.getSLayers().add(topoLayer);
 						this.topoRoot.createSAnnotation(null, topoAnnoName, "TOP");
 						getSDocument().getSDocumentGraph().addSNode(topoRoot);
 						//adding topoRoot to topoPath
@@ -275,7 +276,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 								sDomRel.setSSource(father);
 								sDomRel.setSTarget(topoNode);
 								sDocGraph.addSRelation(sDomRel);
-								topoLayer.getSRelations().add(sDomRel);
+								sDomRel.getSLayers().add(topoLayer);
 								if (	(sDRel!= null) &&
 										(sDRel.getSAnnotations()!=null))
 								{
@@ -333,7 +334,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 										sDomRel.createSAnnotation(syntaxLayerName, sAnno.getSName(), sAnno.getSValueSTEXT());
 									}
 								}
-								syntaxLayer.getSRelations().add(sDomRel);
+								sDomRel.getSLayers().add(syntaxLayer);
 							}
 						}//creating relation to father syntax node
 						{//putting node to list of nodes without tokens and clean up the list
@@ -408,7 +409,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 				{
 					SDominanceRelation sDomRel_new= this.connectStructWithStoken(this.topoPath.peek(), (SToken) currNode, (SDominanceRelation) edge);
 					sDomRel_new.setSSource(this.topoPath.peek());
-					this.topoLayer.getSRelations().add(sDomRel_new);
+					sDomRel_new.getSLayers().add(this.topoLayer);
 					if ((sDomRel_new).getSAnnotations()!=null)
 					{
 						for (SAnnotation sAnno: (sDomRel_new).getSAnnotations())
@@ -423,7 +424,7 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 				{
 					SDominanceRelation sDomRel_new= this.connectStructWithStoken(this.syntaxPath.peek(), (SToken) currNode, (SDominanceRelation) edge);
 					sDomRel_new.setSSource(this.syntaxPath.peek());
-					this.syntaxLayer.getSRelations().add(sDomRel_new);
+					sDomRel_new.getSLayers().add(syntaxLayer);
 					if ((sDomRel_new).getSAnnotations()!=null)
 					{
 						for (SAnnotation sAnno: (sDomRel_new).getSAnnotations())
