@@ -17,6 +17,7 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules;
 
+import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
@@ -24,33 +25,36 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperManipu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
- * This manipulator was developed especially for the TueBaDZ Corpus.
- * It creates a SSpan-objects for every SToken object in the document. All annotations for STokens will be duplicated and added to the spans. 
- * The annotations of the tokens will be renamed from "annoName" to "annoName."
- * For example a "pos"-annotation of SToken-object will be renamedto a "pos."-annotation.
- * All spans, tokens and spanning relations will be added to an artificial layer named "TueBaDZ".
+ * This manipulator was developed especially for the TueBaDZ Corpus. It creates
+ * a SSpan-objects for every SToken object in the document. All annotations for
+ * STokens will be duplicated and added to the spans. The annotations of the
+ * tokens will be renamed from "annoName" to "annoName." For example a
+ * "pos"-annotation of SToken-object will be renamedto a "pos."-annotation. All
+ * spans, tokens and spanning relations will be added to an artificial layer
+ * named "TueBaDZ".
+ * 
  * @author Florian Zipser
  * @version 1.0
  *
  */
-@Component(name="TueBaDZManipulatorComponent", factory="PepperManipulatorComponentFactory")
-public class TueBaDZManipulator extends PepperManipulatorImpl 
-{
-	public TueBaDZManipulator()
-	{
+@Component(name = "TueBaDZManipulatorComponent", factory = "PepperManipulatorComponentFactory")
+public class TueBaDZManipulator extends PepperManipulatorImpl {
+	public TueBaDZManipulator() {
 		super();
-		//setting name of module
+		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TueBaDZModules"));
+		setDesc("This manipulator was developed especially for the TueBaDZ Corpus. It creates a SSpan-objects for every SToken object in the document. All annotations for STokens will be duplicated and added to the spans. The annotations of the tokens will be renamed from 'annoName' to 'annoName.' For example a 'pos'-annotation of SToken-object will be renamedto a 'pos.'-annotation. All spans, tokens and spanning relations will be added to an artificial layer named 'TueBaDZ'. ");
+		// setting name of module
 		this.setName("TueBaDZManipulator");
 	}
-	
+
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}.
-	 * {@inheritDoc PepperModule#createPepperMapper(SElementId)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
+	 * PepperModule#createPepperMapper(SElementId)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId)
-	{
-		Rearanger mapper= new Rearanger();
-		return(mapper);
+	public PepperMapper createPepperMapper(SElementId sElementId) {
+		Rearanger mapper = new Rearanger();
+		return (mapper);
 	}
 }
