@@ -17,12 +17,12 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules;
 
+import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.impl.PepperManipulatorImpl;
+import org.corpus_tools.pepper.modules.PepperMapper;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperManipulatorImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
  * This manipulator was developed especially for the TueBaDZ Corpus. It creates
@@ -41,7 +41,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 public class TueBaDZManipulator extends PepperManipulatorImpl {
 	public TueBaDZManipulator() {
 		super();
-		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TueBaDZModules"));
 		setDesc("This manipulator was developed especially for the TueBaDZ Corpus. It creates a SSpan-objects for every SToken object in the document. All annotations for STokens will be duplicated and added to the spans. The annotations of the tokens will be renamed from 'annoName' to 'annoName.' For example a 'pos'-annotation of SToken-object will be renamedto a 'pos.'-annotation. All spans, tokens and spanning relations will be added to an artificial layer named 'TueBaDZ'. ");
 		// setting name of module
@@ -50,10 +50,10 @@ public class TueBaDZManipulator extends PepperManipulatorImpl {
 
 	/**
 	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(SElementId)}
+	 * PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId) {
+	public PepperMapper createPepperMapper(Identifier sElementId) {
 		Rearanger mapper = new Rearanger();
 		return (mapper);
 	}

@@ -18,28 +18,25 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
+import org.corpus_tools.pepper.impl.PepperMapperImpl;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SDominanceRelation;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.GraphTraverseHandler;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SLayer;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.core.SRelation;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Node;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser.GRAPH_TRAVERSE_MODE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverserObject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.TraversalObject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-
-public class Rearanger extends PepperMapperImpl implements TraversalObject
+public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler
 {	
 	public Rearanger()
 	{
@@ -129,12 +126,12 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 	 * initialises the layers
 	 */
 	protected void initLayers(){
-		this.topoLayer= SaltFactory.eINSTANCE.createSLayer();
-		this.topoLayer.setSName(topoLayerName);
-		this.syntaxLayer= SaltFactory.eINSTANCE.createSLayer();
-		this.syntaxLayer.setSName(syntaxLayerName);
-		getSDocument().getSDocumentGraph().addSLayer(syntaxLayer);
-		getSDocument().getSDocumentGraph().addSLayer(topoLayer);		
+		this.topoLayer= SaltFactory.createSLayer();
+		this.topoLayer.setName(topoLayerName);
+		this.syntaxLayer= SaltFactory.createSLayer();
+		this.syntaxLayer.setName(syntaxLayerName);
+		getDocument().getDocumentGraph().addLayer(syntaxLayer);
+		getDocument().getDocumentGraph().addLayer(topoLayer);		
 	}
 	
 	/**
@@ -155,18 +152,11 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 	 */
 	@Override
 	public DOCUMENT_STATUS mapSDocument() {
-		if (getSDocument().getSDocumentGraph()== null)
-			getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		GraphTraverser traverser= new GraphTraverser();
-		traverser.setGraph(getSDocument().getSDocumentGraph());
-		this.initLayers();
-		EList<Node> roots = traverser.getRoots();
-		for (int idx=0; idx<roots.size(); idx++) {
-			this.newSentence();
-			GraphTraverserObject traverserObj= traverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-			traverserObj.start(roots.get(idx));
-			traverserObj.waitUntilFinished();			
+		if (getDocument().getDocumentGraph()== null){
+			getDocument().setDocumentGraph(SaltFactory.createSDocumentGraph());
 		}
+		List<SNode> roots = getDocument().getDocumentGraph().getRoots();
+		getDocument().getDocumentGraph().traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "any", this);
 		return(DOCUMENT_STATUS.COMPLETED);
 	}
 	
@@ -177,9 +167,9 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 	 */
 	protected boolean isTopoNode(SStructure sStructure)
 	{
-		for (SAnnotation sAnno: sStructure.getSAnnotations())
+		for (SAnnotation sAnno: sStructure.getAnnotations())
 		{//walk through all sAnnotations of node
-			if (this.topologicalAnnosHash.contains(sAnno.getSValue()))
+			if (this.topologicalAnnosHash.contains(sAnno.getValue()))
 			{
 				return (true);
 			}
@@ -196,21 +186,16 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 	 */
 	protected Vector<SStructure> syntaxStructsWithoutSToken= new Vector<SStructure>();
 	
-	public void nodeReached(	GRAPH_TRAVERSE_MODE traversalMode, 
-								Long traversalId,
-								Node currNode, 
-								Edge edge, 
-								Node fromNode, 
-								long order)
-	{
+	@Override
+	public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation relation, SNode fromNode, long order) {
 		if (currNode instanceof SStructure)
 		{
 			
 			SStructure sStructure= (SStructure) currNode;
 			boolean belongsToToDuplicatingLayer= false;
-			for (SLayer sLayer: sStructure.getSLayers())
+			for (SLayer sLayer: sStructure.getLayers())
 			{
-				if ("tiger".equalsIgnoreCase(sLayer.getSName()))
+				if ("tiger".equalsIgnoreCase(sLayer.getName()))
 				{
 					belongsToToDuplicatingLayer= true;
 					break;
@@ -219,22 +204,22 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 			
 			if (belongsToToDuplicatingLayer)
 			{//only split (and duplicate) nodes if they belong to the interesting layer (tiger)
-				SDocumentGraph sDocGraph= sStructure.getSDocumentGraph();
+				SDocumentGraph sDocGraph= sStructure.getGraph();
 	
 				SDominanceRelation sDRel= null;
-				if (	(edge!= null)&&
-						(edge instanceof SDominanceRelation))
-					sDRel= (SDominanceRelation) edge;
+				if (	(relation!= null)&&
+						(relation instanceof SDominanceRelation))
+					sDRel= (SDominanceRelation) relation;
 				
 				{//put original node in hybrid layer
 					if (this.hybridLayer== null)
 					{
-						this.hybridLayer= SaltFactory.eINSTANCE.createSLayer();
-						this.hybridLayer.setSName(hybridLayerName);
-						getSDocument().getSDocumentGraph().getSLayers().add(this.hybridLayer);
-						sStructure.getSLayers().add(hybridLayer);
+						this.hybridLayer= SaltFactory.createSLayer();
+						this.hybridLayer.setName(hybridLayerName);
+						getDocument().getDocumentGraph().addLayer(this.hybridLayer);
+						sStructure.addLayer(hybridLayer);
 						if (sDRel!= null){
-							sDRel.getSLayers().add(hybridLayer);
+							sDRel.addLayer(hybridLayer);
 						}
 					}
 				}//put original node in hybrid layer
@@ -244,27 +229,27 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 					if (this.topoRoot== null)
 					{//creating topo root and adding to graph etc.
 						//creating topo root
-						this.topoRoot= SaltFactory.eINSTANCE.createSStructure();
-						topoRoot.getSLayers().add(topoLayer);
-						this.topoRoot.createSAnnotation(null, topoAnnoName, "TOP");
-						getSDocument().getSDocumentGraph().addSNode(topoRoot);
+						this.topoRoot= SaltFactory.createSStructure();
+						topoRoot.addLayer(topoLayer);
+						this.topoRoot.createAnnotation(null, topoAnnoName, "TOP");
+						getDocument().getDocumentGraph().addNode(topoRoot);
 						//adding topoRoot to topoPath
 						this.topoPath.push(topoRoot);
 					}//creating topo root and adding to graph etc.
 					
 					{//creating new node
-						SStructure topoNode= SaltFactory.eINSTANCE.createSStructure();
+						SStructure topoNode= SaltFactory.createSStructure();
 						sDocGraph.addNode(topoNode);
 						topoLayer.getNodes().add(topoNode);
 						
-						if (sStructure.getSAnnotations()!= null)
+						if (sStructure.getAnnotations()!= null)
 						{
-							for (SAnnotation sAnno: sStructure.getSAnnotations())
+							for (SAnnotation sAnno: sStructure.getAnnotations())
 							{
-								if (sAnno.getSName().equalsIgnoreCase("cat"))
-									topoNode.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
+								if (sAnno.getName().equalsIgnoreCase("cat"))
+									topoNode.createAnnotation(topoLayerName, topoAnnoName, sAnno.getValue_STEXT());
 								else
-									topoNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
+									topoNode.createAnnotation(sAnno.getNamespace(), sAnno.getName(), sAnno.getValue_STEXT());
 							}
 						}
 					
@@ -272,17 +257,17 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 						if (father!= null)
 						{
 							{//creating relation to father topo node	
-								SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-								sDomRel.setSSource(father);
-								sDomRel.setSTarget(topoNode);
-								sDocGraph.addSRelation(sDomRel);
-								sDomRel.getSLayers().add(topoLayer);
+								SDominanceRelation sDomRel= SaltFactory.createSDominanceRelation();
+								sDomRel.setSource(father);
+								sDomRel.setTarget(topoNode);
+								sDocGraph.addRelation(sDomRel);
+								sDomRel.addLayer(topoLayer);
 								if (	(sDRel!= null) &&
-										(sDRel.getSAnnotations()!=null))
+										(sDRel.getAnnotations()!=null))
 								{
-									for (SAnnotation sAnno:sDRel.getSAnnotations())
+									for (SAnnotation sAnno:sDRel.getAnnotations())
 									{
-										sDomRel.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
+										sDomRel.createAnnotation(topoLayerName, topoAnnoName, sAnno.getValue_STEXT());
 									}
 								}
 							}//creating relation to father topo node
@@ -299,19 +284,19 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 				else
 				{//node is syntax node
 					{//creating new node
-						SStructure syntaxNode= SaltFactory.eINSTANCE.createSStructure();
+						SStructure syntaxNode= SaltFactory.createSStructure();
 						sDocGraph.addNode(syntaxNode);
 						syntaxLayer.getNodes().add(syntaxNode);
 						if (syntaxRoot== null)
 							this.syntaxRoot= syntaxNode;
 						
-						if (sStructure.getSAnnotations()!= null) {
-							for (SAnnotation sAnno: sStructure.getSAnnotations())
+						if (sStructure.getAnnotations()!= null) {
+							for (SAnnotation sAnno: sStructure.getAnnotations())
 							{
-								if (sAnno.getSName().equalsIgnoreCase("cat"))
-									syntaxNode.createSAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getSValueSTEXT());
+								if (sAnno.getName().equalsIgnoreCase("cat"))
+									syntaxNode.createAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getValue_STEXT());
 								else
-									syntaxNode.createSAnnotation(sAnno.getSNS(), sAnno.getSName(), sAnno.getSValueSTEXT());
+									syntaxNode.createAnnotation(sAnno.getNamespace(), sAnno.getName(), sAnno.getValue_STEXT());
 							}
 						}
 						
@@ -322,19 +307,19 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 						{//creating relation to father syntax node	
 							if (father!= null)
 							{
-								SDominanceRelation sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-								sDomRel.setSSource(father);
-								sDomRel.setSTarget(syntaxNode);
-								sDocGraph.addSRelation(sDomRel);
+								SDominanceRelation sDomRel= SaltFactory.createSDominanceRelation();
+								sDomRel.setSource(father);
+								sDomRel.setTarget(syntaxNode);
+								sDocGraph.addRelation(sDomRel);
 								if (	(sDRel!= null) &&
-										(sDRel.getSAnnotations()!=null))
+										(sDRel.getAnnotations()!=null))
 								{
-									for (SAnnotation sAnno:sDRel.getSAnnotations())
+									for (SAnnotation sAnno:sDRel.getAnnotations())
 									{
-										sDomRel.createSAnnotation(syntaxLayerName, sAnno.getSName(), sAnno.getSValueSTEXT());
+										sDomRel.createAnnotation(syntaxLayerName, sAnno.getName(), sAnno.getValue_STEXT());
 									}
 								}
-								sDomRel.getSLayers().add(syntaxLayer);
+								sDomRel.addLayer(syntaxLayer);
 							}
 						}//creating relation to father syntax node
 						{//putting node to list of nodes without tokens and clean up the list
@@ -350,19 +335,8 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 		}
 	}
 
-	/**
-	* <!-- begin-user-doc -->
-	* <!-- end-user-doc -->
-	* @model
-	* @generated
-	*/
-	public void nodeLeft(	GRAPH_TRAVERSE_MODE traversalMode, 
-							Long traversalId,
-							Node currNode, 
-							Edge edge, 
-							Node fromNode, 
-							long order)
-	{
+	@Override
+	public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation<SNode, SNode> relation, SNode fromNode, long order) {
 		if (currNode instanceof SStructure)
 		{//node is SStructure node
 			SStructure sStructure= (SStructure) currNode;
@@ -381,40 +355,30 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 		}//node is SStructure node
 	}
 
-	/**
-	* <!-- begin-user-doc -->
-	* <!-- end-user-doc -->
-	* @model
-	* @generated
-	*/
-	public boolean checkConstraint(		GRAPH_TRAVERSE_MODE traversalMode, 
-						Long traversalId,
-						Edge edge, 
-						Node currNode, 
-						long order)
-	{
+	@Override
+	public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation relation, SNode currNode, long order) {
 		if (currNode instanceof SStructure)
 		{
-			if (	(edge == null)||
-					(edge instanceof SDominanceRelation))
+			if (	(relation == null)||
+					(relation instanceof SDominanceRelation))
 				return(true);
 			else return(false);
 		}
 		else if (currNode instanceof SToken)
 		{
-			if (edge instanceof SDominanceRelation)
+			if (relation instanceof SDominanceRelation)
 			{
 				if (	(this.topoPath!= null)&&
 						(this.topoPath.size()>0))
 				{
-					SDominanceRelation sDomRel_new= this.connectStructWithStoken(this.topoPath.peek(), (SToken) currNode, (SDominanceRelation) edge);
-					sDomRel_new.setSSource(this.topoPath.peek());
-					sDomRel_new.getSLayers().add(this.topoLayer);
-					if ((sDomRel_new).getSAnnotations()!=null)
+					SDominanceRelation sDomRel_new= this.connectStructWithStoken(this.topoPath.peek(), (SToken) currNode, (SDominanceRelation) relation);
+					sDomRel_new.setSource(this.topoPath.peek());
+					sDomRel_new.addLayer(this.topoLayer);
+					if ((sDomRel_new).getAnnotations()!=null)
 					{
-						for (SAnnotation sAnno: (sDomRel_new).getSAnnotations())
+						for (SAnnotation sAnno: (sDomRel_new).getAnnotations())
 						{
-							sDomRel_new.createSAnnotation(topoLayerName, topoAnnoName, sAnno.getSValueSTEXT());
+							sDomRel_new.createAnnotation(topoLayerName, topoAnnoName, sAnno.getValue_STEXT());
 						}
 					}
 				}
@@ -422,14 +386,14 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 				if (	(this.syntaxPath!= null)&&
 						(this.syntaxPath.size()>0))
 				{
-					SDominanceRelation sDomRel_new= this.connectStructWithStoken(this.syntaxPath.peek(), (SToken) currNode, (SDominanceRelation) edge);
-					sDomRel_new.setSSource(this.syntaxPath.peek());
-					sDomRel_new.getSLayers().add(syntaxLayer);
-					if ((sDomRel_new).getSAnnotations()!=null)
+					SDominanceRelation sDomRel_new= this.connectStructWithStoken(this.syntaxPath.peek(), (SToken) currNode, (SDominanceRelation) relation);
+					sDomRel_new.setSource(this.syntaxPath.peek());
+					sDomRel_new.addLayer(syntaxLayer);
+					if ((sDomRel_new).getAnnotations()!=null)
 					{
-						for (SAnnotation sAnno: (sDomRel_new).getSAnnotations())
+						for (SAnnotation sAnno: (sDomRel_new).getAnnotations())
 						{
-							sDomRel_new.createSAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getSValueSTEXT());
+							sDomRel_new.createAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getValue_STEXT());
 						}
 					}
 				}
@@ -441,10 +405,10 @@ public class Rearanger extends PepperMapperImpl implements TraversalObject
 	
 	protected SDominanceRelation connectStructWithStoken(SStructure sStruct, SToken sToken, SDominanceRelation sDomRel)
 	{
-		SDocumentGraph sDocGraph= sStruct.getSDocumentGraph();
-		SDominanceRelation sDomRel_new= SaltFactory.eINSTANCE.createSDominanceRelation();
-		sDomRel_new.setSTarget(sToken);
-		sDocGraph.addSRelation(sDomRel_new);
+		SDocumentGraph sDocGraph= sStruct.getGraph();
+		SDominanceRelation sDomRel_new= SaltFactory.createSDominanceRelation();
+		sDomRel_new.setTarget(sToken);
+		sDocGraph.addRelation(sDomRel_new);
 		
 		return(sDomRel_new);
 	}

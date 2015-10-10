@@ -17,21 +17,21 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.tests;
 
+import org.corpus_tools.salt.SALT_TYPE;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SCorpus;
+import org.corpus_tools.salt.common.SCorpusGraph;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SDominanceRelation;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.TueBaDZManipulator;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 
 
 public class TueBaDZManipulatorTest
@@ -50,376 +50,376 @@ public class TueBaDZManipulatorTest
 	public void setUp()
 	{
 		this.setFixture(new TueBaDZManipulator());
-		getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
+		getFixture().setSaltProject(SaltFactory.createSaltProject());
 	}
 	@Test
 	public void testStartManipulator()
 	{
 		SDocumentGraph sDocGraph= this.createSDocGraph();
-		SCorpusGraph sCorpGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
-		getFixture().getSaltProject().getSCorpusGraphs().add(sCorpGraph);
-		SCorpus sCorpus= SaltFactory.eINSTANCE.createSCorpus();
-		sCorpGraph.addSNode(sCorpus);
-		SDocument sDoc= SaltFactory.eINSTANCE.createSDocument();
-		sDoc.setSName("sample1");
-		sDoc.setSDocumentGraph(sDocGraph);
-		sCorpGraph.addSDocument(sCorpus, sDoc);
+		SCorpusGraph sCorpGraph= SaltFactory.createSCorpusGraph();
+		getFixture().getSaltProject().getCorpusGraphs().add(sCorpGraph);
+		SCorpus sCorpus= SaltFactory.createSCorpus();
+		sCorpGraph.addNode(sCorpus);
+		SDocument sDoc= SaltFactory.createSDocument();
+		sDoc.setName("sample1");
+		sDoc.setDocumentGraph(sDocGraph);
+		sCorpGraph.addDocument(sCorpus, sDoc);
 		
-		this.getFixture().start(sDoc.getSElementId());
+		getFixture().start(sDoc.getIdentifier());
 		
-		System.out.println(sDocGraph.getSLayers());
+		System.out.println(sDocGraph.getLayers());
 		
 //		{//tests
 //			SLayer topoLayer= null;
 //			SLayer syntaxLayer= null;
-//			for (SLayer sLayer: sDoc.getSLayers())
+//			for (SLayer sLayer: sDoc.getLayers())
 //			{
-//				if (sLayer.getSName().equals(this.getFixture().topoLayerName))
+//				if (sLayer.getName().equals(getFixture().topoLayerName))
 //					topoLayer= sLayer;
-//				else if (sLayer.getSName().equals(this.getFixture().syntaxLayerName))
+//				else if (sLayer.getName().equals(getFixture().syntaxLayerName))
 //					syntaxLayer= sLayer;	
 //			}
 //			assertNotNull(topoLayer);
 //			assertNotNull(syntaxLayer);
-//			assertEquals(10, syntaxLayer.getSNodes().size());
-//			assertEquals(9, syntaxLayer.getSRelations().size());
+//			assertEquals(10, syntaxLayer.getNodes().size());
+//			assertEquals(9, syntaxLayer.getRelations().size());
 //			
-//			assertEquals(9, topoLayer.getSNodes().size());
-//			assertEquals(8, topoLayer.getSRelations().size());
+//			assertEquals(9, topoLayer.getNodes().size());
+//			assertEquals(8, topoLayer.getRelations().size());
 //		}//tests
 	}
 	
 	public SDocumentGraph createSDocGraph()
 	{
-		SDocumentGraph sDocGraph= SaltFactory.eINSTANCE.createSDocumentGraph();
+		SDocumentGraph sDocGraph= SaltFactory.createSDocumentGraph();
 		{//create SDocumentGraph
 			STextualDS sText= null;
 			{//create primary data
-				sText= SaltFactory.eINSTANCE.createSTextualDS();
-				sText.setSText("\"Der Kampf wird ein Ende finden, wenn es da ist.\"");
-				sDocGraph.addSNode(sText);
+				sText= SaltFactory.createSTextualDS();
+				sText.setText("\"Der Kampf wird ein Ende finden, wenn es da ist.\"");
+				sDocGraph.addNode(sText);
 			}//create primary data
-			SToken tokAmp= SaltFactory.eINSTANCE.createSToken();
-			SToken tokDer= SaltFactory.eINSTANCE.createSToken();
-			SToken tokKampf= SaltFactory.eINSTANCE.createSToken();
-			SToken tokWird= SaltFactory.eINSTANCE.createSToken();
-			SToken tokEin= SaltFactory.eINSTANCE.createSToken();
-			SToken tokEnde= SaltFactory.eINSTANCE.createSToken();
-			SToken tokFinden= SaltFactory.eINSTANCE.createSToken();
-			SToken tokComma= SaltFactory.eINSTANCE.createSToken();
-			SToken tokWenn= SaltFactory.eINSTANCE.createSToken();
-			SToken tokEs= SaltFactory.eINSTANCE.createSToken();
-			SToken tokDa= SaltFactory.eINSTANCE.createSToken();
-			SToken tokIst= SaltFactory.eINSTANCE.createSToken();
-			SToken tokDot= SaltFactory.eINSTANCE.createSToken();
-			SToken tokAmp2= SaltFactory.eINSTANCE.createSToken();
+			SToken tokAmp= SaltFactory.createSToken();
+			SToken tokDer= SaltFactory.createSToken();
+			SToken tokKampf= SaltFactory.createSToken();
+			SToken tokWird= SaltFactory.createSToken();
+			SToken tokEin= SaltFactory.createSToken();
+			SToken tokEnde= SaltFactory.createSToken();
+			SToken tokFinden= SaltFactory.createSToken();
+			SToken tokComma= SaltFactory.createSToken();
+			SToken tokWenn= SaltFactory.createSToken();
+			SToken tokEs= SaltFactory.createSToken();
+			SToken tokDa= SaltFactory.createSToken();
+			SToken tokIst= SaltFactory.createSToken();
+			SToken tokDot= SaltFactory.createSToken();
+			SToken tokAmp2= SaltFactory.createSToken();
 			
 			{//create STokens
 				STextualRelation sTextRel= null;
 				
-				tokAmp= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokAmp);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokAmp);
-				sTextRel.setSStart(0);
-				sTextRel.setSEnd(1);
-				sDocGraph.addSRelation(sTextRel);
+				tokAmp= SaltFactory.createSToken();
+				sDocGraph.addNode(tokAmp);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokAmp);
+				sTextRel.setStart(0);
+				sTextRel.setEnd(1);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokDer= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokDer);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokDer);
-				sTextRel.setSStart(1);
-				sTextRel.setSEnd(4);
-				sDocGraph.addSRelation(sTextRel);
+				tokDer= SaltFactory.createSToken();
+				sDocGraph.addNode(tokDer);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokDer);
+				sTextRel.setStart(1);
+				sTextRel.setEnd(4);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokKampf= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokKampf);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokKampf);
-				sTextRel.setSStart(5);
-				sTextRel.setSEnd(10);
-				sDocGraph.addSRelation(sTextRel);
+				tokKampf= SaltFactory.createSToken();
+				sDocGraph.addNode(tokKampf);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokKampf);
+				sTextRel.setStart(5);
+				sTextRel.setEnd(10);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokWird= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokWird);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokWird);
-				sTextRel.setSStart(11);
-				sTextRel.setSEnd(15);
-				sDocGraph.addSRelation(sTextRel);
+				tokWird= SaltFactory.createSToken();
+				sDocGraph.addNode(tokWird);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokWird);
+				sTextRel.setStart(11);
+				sTextRel.setEnd(15);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokEin= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokEin);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokEin);
-				sTextRel.setSStart(17);
-				sTextRel.setSEnd(25);
-				sDocGraph.addSRelation(sTextRel);
+				tokEin= SaltFactory.createSToken();
+				sDocGraph.addNode(tokEin);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokEin);
+				sTextRel.setStart(17);
+				sTextRel.setEnd(25);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokEnde= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokEnde);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokEnde);
-				sTextRel.setSStart(20);
-				sTextRel.setSEnd(24);
-				sDocGraph.addSRelation(sTextRel);
+				tokEnde= SaltFactory.createSToken();
+				sDocGraph.addNode(tokEnde);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokEnde);
+				sTextRel.setStart(20);
+				sTextRel.setEnd(24);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokFinden= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokFinden);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokFinden);
-				sTextRel.setSStart(25);
-				sTextRel.setSEnd(31);
-				sDocGraph.addSRelation(sTextRel);
+				tokFinden= SaltFactory.createSToken();
+				sDocGraph.addNode(tokFinden);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokFinden);
+				sTextRel.setStart(25);
+				sTextRel.setEnd(31);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokComma= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokComma);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokComma);
-				sTextRel.setSStart(31);
-				sTextRel.setSEnd(32);
-				sDocGraph.addSRelation(sTextRel);
+				tokComma= SaltFactory.createSToken();
+				sDocGraph.addNode(tokComma);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokComma);
+				sTextRel.setStart(31);
+				sTextRel.setEnd(32);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokWenn= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokWenn);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokWenn);
-				sTextRel.setSStart(33);
-				sTextRel.setSEnd(37);
-				sDocGraph.addSRelation(sTextRel);
+				tokWenn= SaltFactory.createSToken();
+				sDocGraph.addNode(tokWenn);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokWenn);
+				sTextRel.setStart(33);
+				sTextRel.setEnd(37);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokEs= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokEs);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokEs);
-				sTextRel.setSStart(38);
-				sTextRel.setSEnd(40);
-				sDocGraph.addSRelation(sTextRel);
+				tokEs= SaltFactory.createSToken();
+				sDocGraph.addNode(tokEs);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokEs);
+				sTextRel.setStart(38);
+				sTextRel.setEnd(40);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokDa= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokDa);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokDa);
-				sTextRel.setSStart(41);
-				sTextRel.setSEnd(43);
-				sDocGraph.addSRelation(sTextRel);
+				tokDa= SaltFactory.createSToken();
+				sDocGraph.addNode(tokDa);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokDa);
+				sTextRel.setStart(41);
+				sTextRel.setEnd(43);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokIst= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokIst);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokIst);
-				sTextRel.setSStart(44);
-				sTextRel.setSEnd(47);
-				sDocGraph.addSRelation(sTextRel);
+				tokIst= SaltFactory.createSToken();
+				sDocGraph.addNode(tokIst);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokIst);
+				sTextRel.setStart(44);
+				sTextRel.setEnd(47);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokDot= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokDot);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokDot);
-				sTextRel.setSStart(47);
-				sTextRel.setSEnd(48);
-				sDocGraph.addSRelation(sTextRel);
+				tokDot= SaltFactory.createSToken();
+				sDocGraph.addNode(tokDot);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokDot);
+				sTextRel.setStart(47);
+				sTextRel.setEnd(48);
+				sDocGraph.addRelation(sTextRel);
 				
-				tokAmp2= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(tokAmp2);
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSTextualDS(sText);
-				sTextRel.setSToken(tokAmp2);
-				sTextRel.setSStart(48);
-				sTextRel.setSEnd(49);
-				sDocGraph.addSRelation(sTextRel);
+				tokAmp2= SaltFactory.createSToken();
+				sDocGraph.addNode(tokAmp2);
+				sTextRel= SaltFactory.createSTextualRelation();
+				sTextRel.setTarget(sText);
+				sTextRel.setSource(tokAmp2);
+				sTextRel.setStart(48);
+				sTextRel.setEnd(49);
+				sDocGraph.addRelation(sTextRel);
 			}//create STokens
 			
-			SStructure topNode= SaltFactory.eINSTANCE.createSStructure();
-			topNode.createSAnnotation(null, "cat", "TOP");
-			sDocGraph.addSNode(topNode);
+			SStructure topNode= SaltFactory.createSStructure();
+			topNode.createAnnotation(null, "cat", "TOP");
+			sDocGraph.addNode(topNode);
 			SDominanceRelation sDomRel= null;
 			
 			{//TOP --> tokAmp
-				sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-				sDomRel.setSSource(topNode);
-				sDomRel.setSTarget(tokAmp);
-				sDocGraph.addSRelation(sDomRel);
-				sDomRel.createSAnnotation(null, "label", "--");
+				sDomRel= SaltFactory.createSDominanceRelation();
+				sDomRel.setSource(topNode);
+				sDomRel.setTarget(tokAmp);
+				sDocGraph.addRelation(sDomRel);
+				sDomRel.createAnnotation(null, "label", "--");
 			}//TOP --> tokAmp
 			
-			SStructure sStruct_SIMPX= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_VF= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_NX1= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_LK= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_VXFIN= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_MF= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_NX2= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_VC= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_VXINF= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_NF= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_SIMPX2= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_C= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_MF2= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_NX3= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_ADVX= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_VC2= SaltFactory.eINSTANCE.createSStructure();
-			SStructure sStruct_VXFIN2= SaltFactory.eINSTANCE.createSStructure();
+			SStructure sStruct_SIMPX= SaltFactory.createSStructure();
+			SStructure sStruct_VF= SaltFactory.createSStructure();
+			SStructure sStruct_NX1= SaltFactory.createSStructure();
+			SStructure sStruct_LK= SaltFactory.createSStructure();
+			SStructure sStruct_VXFIN= SaltFactory.createSStructure();
+			SStructure sStruct_MF= SaltFactory.createSStructure();
+			SStructure sStruct_NX2= SaltFactory.createSStructure();
+			SStructure sStruct_VC= SaltFactory.createSStructure();
+			SStructure sStruct_VXINF= SaltFactory.createSStructure();
+			SStructure sStruct_NF= SaltFactory.createSStructure();
+			SStructure sStruct_SIMPX2= SaltFactory.createSStructure();
+			SStructure sStruct_C= SaltFactory.createSStructure();
+			SStructure sStruct_MF2= SaltFactory.createSStructure();
+			SStructure sStruct_NX3= SaltFactory.createSStructure();
+			SStructure sStruct_ADVX= SaltFactory.createSStructure();
+			SStructure sStruct_VC2= SaltFactory.createSStructure();
+			SStructure sStruct_VXFIN2= SaltFactory.createSStructure();
 			
 			{//TOP --> SIMPX
-				sDocGraph.addSNode(topNode, sStruct_SIMPX, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_SIMPX.createSAnnotation(null, "cat", "SIMPX");
+				sDocGraph.addNode(topNode, sStruct_SIMPX, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_SIMPX.createAnnotation(null, "cat", "SIMPX");
 			}//TOP --> SIMPX
 			
 			{//SIMPX --> VF
-				sDocGraph.addSNode(sStruct_SIMPX, sStruct_VF, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_VF.createSAnnotation(null, "cat", "VF");
+				sDocGraph.addNode(sStruct_SIMPX, sStruct_VF, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_VF.createAnnotation(null, "cat", "VF");
 			}//SIMPX --> VF
 			
 			{//VF --> NX1
-				sDocGraph.addSNode(sStruct_VF, sStruct_NX1, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "ON");
-				sStruct_NX1.createSAnnotation(null, "cat", "NX");
+				sDocGraph.addNode(sStruct_VF, sStruct_NX1, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "ON");
+				sStruct_NX1.createAnnotation(null, "cat", "NX");
 			}//VF --> NX1
 			
 			{//NX1 --> Der
-				sDocGraph.addSNode(sStruct_NX1, tokDer, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
+				sDocGraph.addNode(sStruct_NX1, tokDer, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
 			}//NX1 --> Der
 			
 			{//NX1 --> Kampf
-				sDocGraph.addSNode(sStruct_NX1, tokKampf, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_NX1, tokKampf, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//NX1 --> Kampf
 			
 			{//SIMPX --> LK
-				sDocGraph.addSNode(sStruct_SIMPX, sStruct_LK, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_LK.createSAnnotation(null, "cat", "LK");
+				sDocGraph.addNode(sStruct_SIMPX, sStruct_LK, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_LK.createAnnotation(null, "cat", "LK");
 			}//SIMPX --> LK
 			
 			{//LK --> VXFIN
-				sDocGraph.addSNode(sStruct_LK, sStruct_VXFIN, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
-				sStruct_VXFIN.createSAnnotation(null, "cat", "VXFIN");
+				sDocGraph.addNode(sStruct_LK, sStruct_VXFIN, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
+				sStruct_VXFIN.createAnnotation(null, "cat", "VXFIN");
 			}//LK --> VXFIN
 			
 			{//VXFIN --> wird
-				sDocGraph.addSNode(sStruct_VXFIN, tokWird, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_VXFIN, tokWird, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//VXFIN --> wird
 			
 			
 			{//SIMPX --> MF
-				sDocGraph.addSNode(sStruct_SIMPX, sStruct_MF, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_MF.createSAnnotation(null, "cat", "MF");
+				sDocGraph.addNode(sStruct_SIMPX, sStruct_MF, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_MF.createAnnotation(null, "cat", "MF");
 			}//SIMPX --> MF
 			
 			{//MF --> NX2
-				sDocGraph.addSNode(sStruct_MF, sStruct_NX2, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "OA");
-				sStruct_NX2.createSAnnotation(null, "cat", "NX");
+				sDocGraph.addNode(sStruct_MF, sStruct_NX2, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "OA");
+				sStruct_NX2.createAnnotation(null, "cat", "NX");
 			}//MF --> NX2
 			
 			{//NX2 --> ein
-				sDocGraph.addSNode(sStruct_NX2, tokEin, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
+				sDocGraph.addNode(sStruct_NX2, tokEin, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
 			}//NX2 --> ein
 			
 			{//NX2 --> Ende
-				sDocGraph.addSNode(sStruct_NX2, tokEnde, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_NX2, tokEnde, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//NX2 --> Ende
 			
 			
 			{//SIMPX --> VC
-				sDocGraph.addSNode(sStruct_SIMPX, sStruct_VC, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_VC.createSAnnotation(null, "cat", "VC");
+				sDocGraph.addNode(sStruct_SIMPX, sStruct_VC, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_VC.createAnnotation(null, "cat", "VC");
 			}//SIMPX --> VC
 			
 			{//VC --> VXINF
-				sDocGraph.addSNode(sStruct_VC, sStruct_VXINF, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "OV");
-				sStruct_VXINF.createSAnnotation(null, "cat", "VXINF");
+				sDocGraph.addNode(sStruct_VC, sStruct_VXINF, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "OV");
+				sStruct_VXINF.createAnnotation(null, "cat", "VXINF");
 			}//VC --> VXINF
 			
 			{//VXINF --> finden
-				sDocGraph.addSNode(sStruct_VXINF, tokFinden, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_VXINF, tokFinden, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//VXINF --> finden
 			
 			{//SIMPX --> tokCOmma
-				sDocGraph.addSNode(sStruct_SIMPX, tokComma, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
+				sDocGraph.addNode(sStruct_SIMPX, tokComma, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
 			}//SIMPX --> tokCOmma
 			
 			{//SIMPX --> NF
-				sDocGraph.addSNode(sStruct_SIMPX, sStruct_NF, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_NF.createSAnnotation(null, "cat", "NF");
+				sDocGraph.addNode(sStruct_SIMPX, sStruct_NF, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_NF.createAnnotation(null, "cat", "NF");
 			}//SIMPX --> NF
 			
 			{//NF --> SIMPX
-				sDocGraph.addSNode(sStruct_NF, sStruct_SIMPX2, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "MOD");
-				sStruct_SIMPX2.createSAnnotation(null, "cat", "SIMPX");
+				sDocGraph.addNode(sStruct_NF, sStruct_SIMPX2, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "MOD");
+				sStruct_SIMPX2.createAnnotation(null, "cat", "SIMPX");
 			}//NF --> SIMPX
 			
 			{//SIMPX --> C
-				sDocGraph.addSNode(sStruct_SIMPX2, sStruct_C, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_C.createSAnnotation(null, "cat", "C");
+				sDocGraph.addNode(sStruct_SIMPX2, sStruct_C, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_C.createAnnotation(null, "cat", "C");
 			}//SIMPX --> C
 			
 			{//C --> wenn
-				sDocGraph.addSNode(sStruct_C, tokWenn, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
+				sDocGraph.addNode(sStruct_C, tokWenn, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
 			}//C --> wenn
 			
 			{//SIMPX --> MF2
-				sDocGraph.addSNode(sStruct_SIMPX2, sStruct_MF2, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_MF2.createSAnnotation(null, "cat", "MF");
+				sDocGraph.addNode(sStruct_SIMPX2, sStruct_MF2, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_MF2.createAnnotation(null, "cat", "MF");
 			}//SIMPX --> MF2
 			
 			{//MF2 --> NX3
-				sDocGraph.addSNode(sStruct_MF2, sStruct_NX3, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "ON");
-				sStruct_NX3.createSAnnotation(null, "cat", "NX");
+				sDocGraph.addNode(sStruct_MF2, sStruct_NX3, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "ON");
+				sStruct_NX3.createAnnotation(null, "cat", "NX");
 			}//MF2 --> NX3
 			
 			{//NX3 --> es
-				sDocGraph.addSNode(sStruct_NX3, tokEs, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_NX3, tokEs, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//NX3 --> es
 			
 			{//MF2 --> ADVX
-				sDocGraph.addSNode(sStruct_MF2, sStruct_ADVX, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "PRED");
-				sStruct_ADVX.createSAnnotation(null, "cat", "ADVX");
+				sDocGraph.addNode(sStruct_MF2, sStruct_ADVX, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "PRED");
+				sStruct_ADVX.createAnnotation(null, "cat", "ADVX");
 			}//MF2 --> ADVX
 			
 			{//NX3 --> es
-				sDocGraph.addSNode(sStruct_ADVX, tokDa, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_ADVX, tokDa, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//NX3 --> es
 			
 			{//SIMPX --> VC2
-				sDocGraph.addSNode(sStruct_SIMPX2, sStruct_VC2, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "--");
-				sStruct_VC2.createSAnnotation(null, "cat", "VC");
+				sDocGraph.addNode(sStruct_SIMPX2, sStruct_VC2, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "--");
+				sStruct_VC2.createAnnotation(null, "cat", "VC");
 			}//SIMPX --> VC2
 			
 			{//VC2 --> VXFIN2
-				sDocGraph.addSNode(sStruct_VC2, sStruct_VXFIN2, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
-				sStruct_VXFIN2.createSAnnotation(null, "cat", "VXFIN");
+				sDocGraph.addNode(sStruct_VC2, sStruct_VXFIN2, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
+				sStruct_VXFIN2.createAnnotation(null, "cat", "VXFIN");
 			}//VC2 --> VXFIN2
 			
 			{//VXFIN2 --> ist
-				sDocGraph.addSNode(sStruct_VXFIN2, tokIst, STYPE_NAME.SDOMINANCE_RELATION).createSAnnotation(null, "label", "HD");
+				sDocGraph.addNode(sStruct_VXFIN2, tokIst, SALT_TYPE.SDOMINANCE_RELATION).createAnnotation(null, "label", "HD");
 			}//VXFIN2 --> ist
 			
 			{//TOP --> tokDot
-				sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-				sDomRel.setSSource(topNode);
-				sDomRel.setSTarget(tokDot);
-				sDocGraph.addSRelation(sDomRel);
-				sDomRel.createSAnnotation(null, "label", "--");
+				sDomRel= SaltFactory.createSDominanceRelation();
+				sDomRel.setSource(topNode);
+				sDomRel.setTarget(tokDot);
+				sDocGraph.addRelation(sDomRel);
+				sDomRel.createAnnotation(null, "label", "--");
 			}//TOP --> tokDot
 			
 			{//TOP --> tokAmp2
-				sDomRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-				sDomRel.setSSource(topNode);
-				sDomRel.setSTarget(tokAmp2);
-				sDocGraph.addSRelation(sDomRel);
-				sDomRel.createSAnnotation(null, "label", "--");
+				sDomRel= SaltFactory.createSDominanceRelation();
+				sDomRel.setSource(topNode);
+				sDomRel.setTarget(tokAmp2);
+				sDocGraph.addRelation(sDomRel);
+				sDomRel.createAnnotation(null, "label", "--");
 			}//TOP --> tokAmp2
 			
 			
