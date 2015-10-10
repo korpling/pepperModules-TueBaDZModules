@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules;
+package org.corpus_tools.peppermodules.tuebadzModules;
 
 import java.util.HashSet;
 import java.util.List;

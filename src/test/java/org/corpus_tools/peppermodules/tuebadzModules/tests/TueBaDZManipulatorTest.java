@@ -15,8 +15,9 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.tests;
+package org.corpus_tools.peppermodules.tuebadzModules.tests;
 
+import org.corpus_tools.peppermodules.tuebadzModules.TueBaDZManipulator;
 import org.corpus_tools.salt.SALT_TYPE;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SCorpus;
@@ -30,8 +31,6 @@ import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.tuebadzModules.TueBaDZManipulator;
 
 public class TueBaDZManipulatorTest {
 	private TueBaDZManipulator fixture = null;
