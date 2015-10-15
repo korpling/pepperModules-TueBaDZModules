@@ -53,7 +53,7 @@ public class TueBaDZManipulatorTest {
 	public void testStartManipulator() {
 		SDocumentGraph sDocGraph = this.createSDocGraph();
 		SCorpusGraph sCorpGraph = SaltFactory.createSCorpusGraph();
-		getFixture().getSaltProject().getCorpusGraphs().add(sCorpGraph);
+		getFixture().getSaltProject().addCorpusGraph(sCorpGraph);
 		SCorpus sCorpus = SaltFactory.createSCorpus();
 		sCorpGraph.addNode(sCorpus);
 		SDocument sDoc = SaltFactory.createSDocument();
