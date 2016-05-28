@@ -213,9 +213,9 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 						this.hybridLayer = SaltFactory.createSLayer();
 						this.hybridLayer.setName(hybridLayerName);
 						getDocument().getDocumentGraph().addLayer(this.hybridLayer);
-						sStructure.addLayer(hybridLayer);
+						hybridLayer.addNode(sStructure);
 						if (sDRel != null) {
-							sDRel.addLayer(hybridLayer);
+							hybridLayer.addRelation(sDRel);
 						}
 					}
 				}// put original node in hybrid layer
@@ -225,7 +225,7 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 												// to graph etc.
 												// creating topo root
 						this.topoRoot = SaltFactory.createSStructure();
-						topoRoot.addLayer(topoLayer);
+						topoLayer.addNode(topoRoot);
 						this.topoRoot.createAnnotation(null, topoAnnoName, "TOP");
 						getDocument().getDocumentGraph().addNode(topoRoot);
 						// adding topoRoot to topoPath
@@ -253,7 +253,7 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 								sDomRel.setSource(father);
 								sDomRel.setTarget(topoNode);
 								sDocGraph.addRelation(sDomRel);
-								sDomRel.addLayer(topoLayer);
+								topoLayer.addRelation(sDomRel);
 								if ((sDRel != null) && (sDRel.getAnnotations() != null)) {
 									for (SAnnotation sAnno : sDRel.getAnnotations()) {
 										sDomRel.createAnnotation(topoLayerName, topoAnnoName, sAnno.getValue_STEXT());
@@ -304,7 +304,7 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 										sDomRel.createAnnotation(syntaxLayerName, sAnno.getName(), sAnno.getValue_STEXT());
 									}
 								}
-								sDomRel.addLayer(syntaxLayer);
+								syntaxLayer.addRelation(sDomRel);
 							}
 						}// creating relation to father syntax node
 						{// putting node to list of nodes without tokens and
@@ -323,7 +323,7 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 	}
 
 	@Override
-	public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation<SNode, SNode> relation, SNode fromNode, long order) {
+	public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation<? extends SNode, ? extends SNode> relation, SNode fromNode, long order) {
 		if (currNode instanceof SStructure) {// node is SStructure node
 			SStructure sStructure = (SStructure) currNode;
 			if (isTopoNode(sStructure)) {// node is topo node
@@ -351,7 +351,7 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 				if ((this.topoPath != null) && (this.topoPath.size() > 0)) {
 					SDominanceRelation sDomRel_new = this.connectStructWithStoken(this.topoPath.peek(), (SToken) currNode, (SDominanceRelation) relation);
 					sDomRel_new.setSource(this.topoPath.peek());
-					sDomRel_new.addLayer(this.topoLayer);
+					this.topoLayer.addRelation(sDomRel_new);
 					if ((sDomRel_new).getAnnotations() != null) {
 						for (SAnnotation sAnno : (sDomRel_new).getAnnotations()) {
 							sDomRel_new.createAnnotation(topoLayerName, topoAnnoName, sAnno.getValue_STEXT());
@@ -362,7 +362,7 @@ public class Rearanger extends PepperMapperImpl implements GraphTraverseHandler 
 				if ((this.syntaxPath != null) && (this.syntaxPath.size() > 0)) {
 					SDominanceRelation sDomRel_new = this.connectStructWithStoken(this.syntaxPath.peek(), (SToken) currNode, (SDominanceRelation) relation);
 					sDomRel_new.setSource(this.syntaxPath.peek());
-					sDomRel_new.addLayer(syntaxLayer);
+					syntaxLayer.addRelation(sDomRel_new);
 					if ((sDomRel_new).getAnnotations() != null) {
 						for (SAnnotation sAnno : (sDomRel_new).getAnnotations()) {
 							sDomRel_new.createAnnotation(syntaxLayerName, syntaxAnnoName, sAnno.getValue_STEXT());
